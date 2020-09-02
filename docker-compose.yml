@@ -1,0 +1,9 @@
+version: '3.8'
+
+services: 
+    node:
+        image: node:14.0.0
+        working_dir: /home/node
+        volumes:
+            - ./:/home/node
+        command: "node index.js"
