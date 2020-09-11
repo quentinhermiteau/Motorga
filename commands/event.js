@@ -8,10 +8,6 @@ module.exports = class Event {
 
     static action(message) {
         const args = message.content.split(' ');
-        if (message.channel.name !== 'bot-sorties' && message.channel.name !== 'setup-bots') {
-            message.channel.send('Merci d\'utiliser la commande !event uniquement sur le channel #bot-sorties.');
-            return;
-        }
 
         args.shift();
 
