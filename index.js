@@ -18,7 +18,7 @@ bot.on('message', (message) => {
         }
         Event.action(message);
     } else {
-        if (message.author.username !== 'Motorga' && (message.channel.name === 'bot-sorties' || message.channel.name === 'setup-bots')) {
+        if (message.author.username !== 'Motorga' && message.channel.name === 'bot-sorties') {
             message.delete();
             message.channel.send('Ce channel est réservé aux commandes du bot!');
             return;
