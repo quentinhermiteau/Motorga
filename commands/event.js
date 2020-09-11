@@ -189,7 +189,7 @@ module.exports = class Event {
 
         embed.fields = [
             {
-                name: (participants.length > 0) ? `Participants ${participants.length})` : "Participants",
+                name: (participants.length > 0) ? `Participants (${participants.length})` : "Participants",
                 value: (participants.length > 0) ? participants.join('\n') : 'Aucun.'
             }
         ]
