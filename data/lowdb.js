@@ -47,9 +47,6 @@ module.exports = class Firestore {
             this.createEvent(title, description);
         }
 
-        title = title.replace(/-/g, ' ');
-        description = description.replace(/-/g, ' ');
-
         const event = {id: id, title: title, description: description, participants: []};
         db.get('events').push(event).write();
         return event;
@@ -65,7 +62,6 @@ module.exports = class Firestore {
 
     static updateTitleEvent(message, eventId, title) {
         if (db.get('events').find({ id: parseInt(eventId) }).value()) {
-            title = title.replace(/-/g, ' ');
             db.get('events').find({ id: parseInt(eventId) }).assign({title: title}).write();
         } else {
             message.channel.send('Cet event n\'existe pas.');
@@ -74,7 +70,6 @@ module.exports = class Firestore {
 
     static updateDescriptionEvent(message, eventId, description) {
         if (db.get('events').find({ id: parseInt(eventId) }).value()) {
-            description = description.replace(/-/g, ' ');
             db.get('events').find({ id: parseInt(eventId) }).assign({description: description}).write();
         } else {
             message.channel.send('Cet event n\'existe pas.');

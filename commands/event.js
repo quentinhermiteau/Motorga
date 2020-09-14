@@ -9,7 +9,7 @@ module.exports = class Event {
     static action(message) {
         const args = message.content.split(' ');
 
-        args.shift();
+        args.shift(); //remove the event prefix of the command
 
         switch (args[0]) {
             case 'help':
@@ -120,10 +120,13 @@ module.exports = class Event {
     }
 
     static createEvent(message, args) {
-        args.shift();
+        args.shift(); // remove create
+        const newArgs = args.join(' ').split('```');
+        const title = newArgs[0].trim(' ');
+        const description= newArgs[1].trim(' ');
 
-        if (args[0]) {
-            const event = LowDb.createEvent(args[0], args[1]);
+        if (title) {
+            const event = LowDb.createEvent(title, description);
             this.getEvent(message, event.id);
         } else {
             message.channel.send('Une erreur s\'est produite lors de la création de l\'event, le titre de l\'event est obligatoire.');
@@ -131,25 +134,33 @@ module.exports = class Event {
     }
 
     static updateTitleEvent(message, args) {
-        if (!args[2]) {
+        const eventId = args.shift();
+        args.shift(); // remove title
+        const title = args.join(' ').trim();
+
+        if (!title) {
             message.channel.send('Le titre est incorrect.');
             return;
         }
 
-        LowDb.updateTitleEvent(message, args[0], args[2]);
+        LowDb.updateTitleEvent(message, eventId, title);
         message.channel.send('Titre de l\'event mis à jour.');
-        this.getEvent(message, args[0]);
+        this.getEvent(message, eventId);
     }
 
     static updateDescriptionEvent(message, args) {
-        if (!args[2]) {
+        const eventId = args.shift();
+        args.shift(); // remove description
+        const description = args.join(' ').replace(/```/g, '');
+
+        if (!description) {
             message.channel.send('La description est incorrect.');
             return;
         }
 
-        const event = LowDb.updateDescriptionEvent(message, args[0], args[2]);
+        LowDb.updateDescriptionEvent(message, eventId, description);
         message.channel.send('Description de l\'event mis à jour.');
-        this.getEvent(message, args[0]);
+        this.getEvent(message, eventId);
     }
 
     static deleteEvent(message, args) {
