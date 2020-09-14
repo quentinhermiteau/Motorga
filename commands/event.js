@@ -60,8 +60,16 @@ module.exports = class Event {
                 value: 'Affiche les infos d\'un event selon l\'id précisé (ici id 1) et permet aux personnes de participer.'
             },
             {
-                name: '!event create mon-titre ma-description',
-                value: 'Créé un event avec le titre et la description donnés (bien mettre les - entre chaque mots).'
+                name: '!event 1 title mon nouveau titre',
+                value: 'Met à jour le titre de l\'event.'
+            },
+            {
+                name: '!event 1 description ma nouvelle description',
+                value: 'Met à jour la description de l\'event.'
+            },
+            {
+                name: '!event create mon super titre ```ma super description```',
+                value: 'Créé un event avec le titre et la description donnés (la description doit être entre triple back quote (\`)).'
             },
             {
                 name: '!event delete 1',
