@@ -130,6 +130,12 @@ module.exports = class Event {
     static createEvent(message, args) {
         args.shift(); // remove create
         const newArgs = args.join(' ').split('```');
+
+        if (!newArgs[0] || !newArgs[1]) {
+            message.channel.send('Hmmm... il semble que tu aies mal rentré ta commande!');
+            return;
+        }
+
         const title = newArgs[0].trim(' ');
         const description= newArgs[1].trim(' ');
 
