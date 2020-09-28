@@ -1,4 +1,4 @@
-const LowDb = require('../data/lowdb');
+const Events = require('../data/events');
 const Discord = require('discord.js');
 
 module.exports = class Event {
@@ -89,12 +89,12 @@ module.exports = class Event {
     }
 
     static getList(message) {
-        const events = LowDb.getEvents();
+        const events = Events.getEvents();
         return message.channel.send({embed: this.embedListConstructor(events)});
     }
 
     static getEvent(message, eventId) {
-        const event = LowDb.getEvent(eventId);
+        const event = Events.getEvent(eventId);
         if (!event) {
             message.channel.send('Cet event n\'existe pas.');
             return;
@@ -112,12 +112,12 @@ module.exports = class Event {
                 const user = message.guild.members.cache.find((index, user) => index == id);
 
                 if (collected.first().emoji.name == '👍') {
-                    LowDb.addUserToEvent(user.nickname, eventId, message);
+                    Events.addUserToEvent(user.nickname, eventId, message);
                     this.getEvent(message, eventId);
                 }
 
                 if (collected.first().emoji.name == '👎') {
-                    LowDb.removeUserToEvent(user.nickname, eventId, message);
+                    Events.removeUserToEvent(user.nickname, eventId, message);
                     this.getEvent(message, eventId);
                 }
             }).catch((error) => {
@@ -140,7 +140,7 @@ module.exports = class Event {
         const description= newArgs[1].trim(' ');
 
         if (title) {
-            const event = LowDb.createEvent(title, description);
+            const event = Events.createEvent(title, description);
             this.getEvent(message, event.id);
         } else {
             message.channel.send('Une erreur s\'est produite lors de la création de l\'event, le titre de l\'event est obligatoire.');
@@ -157,7 +157,7 @@ module.exports = class Event {
             return;
         }
 
-        LowDb.updateTitleEvent(message, eventId, title);
+        Events.updateTitleEvent(message, eventId, title);
         message.channel.send('Titre de l\'event mis à jour.');
         this.getEvent(message, eventId);
     }
@@ -172,13 +172,13 @@ module.exports = class Event {
             return;
         }
 
-        LowDb.updateDescriptionEvent(message, eventId, description);
+        Events.updateDescriptionEvent(message, eventId, description);
         message.channel.send('Description de l\'event mis à jour.');
         this.getEvent(message, eventId);
     }
 
     static deleteEvent(message, args) {
-        LowDb.deleteEvent(message, args[1]);
+        Events.deleteEvent(message, args[1]);
         message.channel.send('L\'event a bien été supprimé.');
         this.getList(message);
     }

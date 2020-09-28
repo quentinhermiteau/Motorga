@@ -4,7 +4,7 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('./data/db.json');
 const db = low(adapter);
 
-module.exports = class Firestore {
+module.exports = class Events {
     static getEvents() {
         const events = db.get('events').value();
 
