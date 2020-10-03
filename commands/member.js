@@ -24,6 +24,15 @@ module.exports = class Member {
             case 'edit':
                 this.editMember(message);
                 break;
+            case 'increase':
+                this.increaseOpenMember(message, args);
+                break;
+            case 'decrease':
+                this.decreaseOpenMember(message, args);
+                break;
+            case 'reset':
+                this.resetMembersOpens(message);
+                break;
             default:
                 message.channel.send('Désolé mais cette commande n\'existe pas.')
                 break;
@@ -83,8 +92,6 @@ module.exports = class Member {
         });
 
         members.sort(this.sortMembers);
-
-        console.log(members);
 
         let ligns = '```';
 
@@ -156,6 +163,118 @@ module.exports = class Member {
         }
 
         this.profiler(message, member, options, member => Members.updateMember(id, member));
+    }
+
+    static increaseOpenMember(message, args) {
+        if(!this.isAdmin(message)) {
+            message.channel.send('Tu n\'es pas autorisé à utiliser cette commande!');
+            return;
+        }
+
+        args.shift(); // remove 'increase'
+
+        const memberId = args[0];
+        const member = Members.getMember(memberId);
+
+        if (!member) {
+            message.channel.send('Ce membre n\'existe pas.');
+            return;
+        }
+
+        let open = 1;
+        if (args[1]) {
+            open = args[1];
+        }
+
+        const result = parseInt(member.opens) + parseInt(open);
+        if (result > 4 && !this.isAdmin(message)) {
+            message.channel.send('Ce membre ne peut pas dépasser 4 points open, son nombre de points a été fixé à 4.');
+            member.opens = 4;
+        } else if(result > 8) {
+            message.channel.send('Ce membre ne peut pas dépasser 8 points open, son nombre de points a été fixé à 8.');
+            member.opens = 8;
+        } else {
+            message.channel.send(`Ajout de ${open} points open réussi.`);
+            member.opens = result;
+        }
+
+        Members.updateMember(memberId, member);
+        return;
+    }
+
+    static decreaseOpenMember(message, args) {
+        if(!this.isAdmin(message)) {
+            message.channel.send('Tu n\'es pas autorisé à utiliser cette commande!');
+            return;
+        }
+
+        args.shift(); // remove 'decrease'
+
+        const memberId = args[0];
+        const member = Members.getMember(memberId);
+
+        if (!member) {
+            message.channel.send('Ce membre n\'existe pas.');
+            return;
+        }
+
+        let open = 1;
+        if (args[1]) {
+            open = args[1];
+        }
+
+        const result = parseInt(member.opens) - parseInt(open);
+        
+        if (result < 0) {
+            message.channel.send('Un membre ne peut pas avoir moins de 0 points open, son nombre de points à été fixé à 0.');
+            member.opens = 0;
+        } else {
+            message.channel.send(`Retrait de ${open} points open réussi.`);
+            member.opens = result;
+        }
+        
+        Members.updateMember(memberId, member);
+        return;
+    }
+
+    // WARNING: reset every members's opens
+    static resetMembersOpens(message) {
+        if (!this.isAdmin(message)) {
+            message.channel.send('Tu n\'es pas autorisé à utiliser cette commande!');
+            return;
+        }
+
+        const authorId = message.author.id;
+        message.reply('Es tu sûr de vouloir remettre à 0 les points open de tous les membres? Cette action est irréversible!!!\nY=oui, N=non')
+        .then(response => {
+            response.channel.awaitMessages(response => response.content, {
+                max: 1,
+                time: 30000,
+                errors: ['time'],
+            }).then(collected => {
+                const responseAuthorId = collected.first().author.id
+                if(responseAuthorId == authorId) {
+                    const response = collected.first().content;
+                    if (response === 'Y') {
+                        message.channel.send('Remise à 0 des points open de tous les membres.');
+                        const members = Members.getMembers();
+
+                        members.forEach(member => {
+                            member.opens = 0;
+                            Members.updateMember(member.id, member);
+                        });
+                    } else if (response === 'N') {
+                        message.channel.send('Action annulée');
+                    } else {
+                        message.channel.send('Réponse invalide, action annulée.');
+                    } 
+                }
+
+                return;
+            }).catch(() => {
+                message.reply('Vous avez mit trop de temps pour répondre, action annulée.');
+            });
+        })
     }
 
     static embedMemberConstructor(member) {
@@ -234,6 +353,11 @@ module.exports = class Member {
     static capitalize(string) {
         const loweredCaseString = string.toLowerCase();
         return loweredCaseString.charAt(0).toUpperCase() + loweredCaseString.slice(1);
+    }
+
+    static isAdmin(message) {
+        let adminRole = message?.guild?.roles?.cache.find(role => role.name === "Admin");
+        return message?.member?.roles?.cache.has(adminRole.id)
     }
 
     static sortMembers(a, b) {
