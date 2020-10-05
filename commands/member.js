@@ -98,12 +98,6 @@ module.exports = class Member {
 
         let ligns = '```';
 
-        ligns += '+ ---- + ';
-        for (let index = 0; index < nameMax; index++) {
-            ligns += '-';
-        }
-        ligns += ' + -- + - +\n';
-
         for (let index = 0; index < members.length; index++) {
             const name = `${members[index].lastname} ${members[index].firstname}`;
             let lign = `| ${members[index].id} | ${name}`;
@@ -120,21 +114,16 @@ module.exports = class Member {
             ligns += lign + '\n';
         }
 
-        ligns += '+ ---- + ';
-        for (let index = 0; index < nameMax; index++) {
-            ligns += '-';
-        }
-        ligns += ' + -- + - +\n';
-
         ligns += '```';
 
         limits.forEach((value, index) => {
             const start = index == 0 ? 0 : limits[index-1];
             const text = (index != 0 ? '```' : '') + ligns.slice(start, value) + '```';
-            embed.addField('| id | Nom Prénom | classe | opens |', text);
+            const title = index == 0 ? '| id | Nom Prénom | classe | opens |' : `page ${index+1}`;
+            embed.addField(title, text);
 
             if (ligns.length > limit && limits.length == 1) {          
-                embed.addField('| id | Nom Prénom | classe | opens |', '```' + ligns.slice(value, ligns.length));
+                embed.addField('page 2', '```' + ligns.slice(value, ligns.length));
             }
         })
 
