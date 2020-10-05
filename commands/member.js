@@ -372,3 +372,4 @@ module.exports = class Member {
         return 0;
     }
 }
+

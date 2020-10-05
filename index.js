@@ -10,7 +10,7 @@ const db = low(adapter);
 db.defaults({ events: [], members: [] }).write();
 
 const bot = new Client()
-bot.login('NzUwNzAxNzk5MDE0NjYyMTg1.X0-XiA.2wT3d1t-EbQNObSLNX5B1NTzuc0');
+bot.login('NzUwNzAxNzk5MDE0NjYyMTg1.X0-XiA.97u6xXEujXsh4kLW5F3Yj3yUAhA');
 
 bot.on('message', (message) => {
     if(Event.match(message)) {
