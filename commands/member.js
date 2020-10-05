@@ -78,6 +78,7 @@ module.exports = class Member {
         let nameMax = 0;
         // | idid | name | promotion | opens |
         const nameColMaxLength = 75; // 95 max - 2 for promotion - 1 for opens - 4 for id - 13 for spaces and pipes
+        const limit = 1024 - 95;
 
         let cols = [];
 
@@ -93,6 +94,8 @@ module.exports = class Member {
 
         members.sort(this.sortMembers);
 
+        let limits = [];
+
         let ligns = '```';
 
         ligns += '+ ---- + ';
@@ -101,12 +104,18 @@ module.exports = class Member {
         }
         ligns += ' + -- + - +\n';
 
-        for (let index = 0; index < cols.length; index++) {
-            let lign = `| ${members[index].id} | ${cols[index]}`;
-            const spaces = nameMax - cols[index].length;
+        for (let index = 0; index < members.length; index++) {
+            const name = `${members[index].lastname} ${members[index].firstname}`;
+            let lign = `| ${members[index].id} | ${name}`;
+            const spaces = nameMax - name.length;
             for (let j = 0; j < spaces; j++) {
                 lign += ` `;
             }
+
+            if ((ligns.length + lign.length) > (limit*(limits.length+1))) {
+                limits.push(ligns.length);
+            }
+            
             lign += ` | ${members[index].promotion} | ${members[index].opens} |`;
             ligns += lign + '\n';
         }
@@ -119,12 +128,16 @@ module.exports = class Member {
 
         ligns += '```';
 
-        if (members.length > 0) {
-            embed.fields = [{
-                name: 'Nom Prénom | classe | opens',
-                value: ligns
-            }];
-        }
+        limits.forEach((value, index) => {
+            const start = index == 0 ? 0 : limits[index-1];
+            const text = (index != 0 ? '```' : '') + ligns.slice(start, value) + '```';
+            embed.addField('| id | Nom Prénom | classe | opens |', text);
+
+            if (ligns.length > limit && limits.length == 1) {          
+                embed.addField('| id | Nom Prénom | classe | opens |', '```' + ligns.slice(value, ligns.length));
+            }
+        })
+
         message.channel.send({embed: embed})
     }
 
