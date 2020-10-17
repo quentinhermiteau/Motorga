@@ -189,7 +189,7 @@ module.exports = class Member {
         }
 
         const result = parseInt(member.opens) + parseInt(open);
-        if (result > 4 && !this.isAdmin(message)) {
+        if (result > 4 && !this.isMemberAdmin(message, member.id)) {
             message.channel.send('Ce membre ne peut pas dépasser 4 points open, son nombre de points a été fixé à 4.');
             member.opens = 4;
         } else if(result > 8) {
@@ -358,8 +358,20 @@ module.exports = class Member {
     }
 
     static isAdmin(message) {
-        let adminRole = message?.guild?.roles?.cache.find(role => role.name === "Admin");
+        const adminRole = message?.guild?.roles?.cache.find(role => role.name === "Admin");
         return message?.member?.roles?.cache.has(adminRole.id)
+    }
+
+    static isMemberAdmin(message, memberId) {
+        const adminRole = message?.guild?.roles?.cache.find(role => role.name === "Admin");
+
+        message.guild.members.cache.find(({user, _roles}) => {
+            if (user.discriminator === memberId) {
+                return _roles.includes(adminRole.id);
+            }
+            
+            return false;
+        });
     }
 
     static sortMembers(a, b) {
